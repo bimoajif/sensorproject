@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Sensor Project</string>
+    <string name="pitch">Pitch:</string>
+    <string name="roll">Roll:</string>
+    <string name="yaw">Yaw:</string>
+    <string name="magnetic_x">Magnetic X:</string>
+    <string name="magnetic_y">Magnetic Y:</string>
+    <string name="magnetic_z">Magnetic Z:</string>
+</resources>
