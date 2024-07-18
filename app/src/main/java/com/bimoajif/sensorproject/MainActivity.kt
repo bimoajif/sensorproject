@@ -7,6 +7,8 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -59,8 +61,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var magZTextView: TextView
 
     private lateinit var timerTextView: TextView
-
     private lateinit var lineChartView: LineChart
+
+    private lateinit var dropdownView: AutoCompleteTextView
 
     private lateinit var buttonView: Button
     private lateinit var stopButtonView: Button
@@ -90,6 +93,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         dao.deleteAll()
 
+        val dropdownValues = resources.getStringArray(R.array.dropdown_values)
+        val arrayAdapter = ArrayAdapter(this, R.layout.dropdown_item, dropdownValues)
+
         pitchTextView = findViewById(R.id.pitch)
         pitchRelativeTextView = findViewById(R.id.pitch_relative)
         rollTextView = findViewById(R.id.roll)
@@ -102,6 +108,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         buttonView = findViewById(R.id.button)
         stopButtonView = findViewById(R.id.button_stop)
         startButtonView = findViewById(R.id.button_start)
+        dropdownView = findViewById(R.id.dropdown)
+
+        dropdownView.setAdapter(arrayAdapter)
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 
@@ -133,6 +142,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         registerSensor()
+
+        dropdownView.setOnDismissListener {
+            val text = dropdownView.text
+            val duration = Toast.LENGTH_SHORT
+
+            Toast.makeText(this, text, duration).show()
+        }
+
         buttonView.setOnClickListener {
             lineYValues.clear()
             lineZValues.clear()
@@ -164,7 +181,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             Toast.makeText(this, text, duration).show()
 
-            startTimer(pauseOffSet)
+            if (i > 100) {
+                startTimer(pauseOffSet)
+            }
         }
     }
 
@@ -267,7 +286,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 pauseTimer()
             }
         }
-
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {

@@ -1,5 +1,15 @@
 <resources>
     <string name="app_name">Sensor Project</string>
+    <string-array name="dropdown_values">
+        <item>0 cm</item>
+        <item>2 cm</item>
+        <item>5 cm</item>
+        <item>10 cm</item>
+        <item>20 cm</item>
+        <item>25 cm</item>
+        <item>30 cm</item>
+        <item>continuous</item>
+    </string-array>
     <string name="pitch">Pitch:</string>
     <string name="pitch_relative">Pitch Relative:</string>
     <string name="roll">Roll:</string>
@@ -11,4 +21,5 @@
     <string name="reset_reading">Reset Reading</string>
     <string name="start_reading">Start Reading</string>
     <string name="stop_reading">Stop Reading</string>
+    <string name="select_distance">Select Distance</string>
 </resources>
