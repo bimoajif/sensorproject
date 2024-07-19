@@ -16,6 +16,7 @@ data class SensorEntity(
     @ColumnInfo(name = "magneto_z") val magnetoZ: Float?,
 )
 
+
 @Entity(tableName = "ui_colors")
 data class UiColorsEntity(
     @ColumnInfo(name = "label") val label: String,

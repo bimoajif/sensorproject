@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var startButtonView: Button
 
     private var countDownTimer: CountDownTimer? = null
-    private var timeInMilliseconds = 60000L
+    private var timeInMilliseconds = 30000L
     private var pauseOffSet = 0L
 
     private var lineYValues = ArrayList<Entry>()
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-        registerSensor()
+//        registerSensor()
 
         dropdownView.setOnDismissListener {
             val text = dropdownView.text
@@ -176,10 +176,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         startButtonView.setOnClickListener {
             registerSensor()
-            val text = "Start Reading"
-            val duration = Toast.LENGTH_SHORT
-
-            Toast.makeText(this, text, duration).show()
 
             if (i > 100) {
                 startTimer(pauseOffSet)
