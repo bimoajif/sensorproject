@@ -52,9 +52,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private val alpha = 0.8f
 
     private lateinit var pitchTextView: TextView
-    private lateinit var pitchRelativeTextView: TextView
-    private lateinit var rollTextView: TextView
-    private lateinit var yawTextView: TextView
+    private lateinit var azimuthTextView: TextView
+    private lateinit var azimuthOffsetTextView: TextView
 
     private lateinit var magXTextView: TextView
     private lateinit var magYTextView: TextView
@@ -65,12 +64,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var dropdownView: AutoCompleteTextView
 
-    private lateinit var buttonView: Button
+    private lateinit var resetReadingButtonView: Button
+    private lateinit var resetDbButtonView: Button
     private lateinit var stopButtonView: Button
     private lateinit var startButtonView: Button
 
     private var countDownTimer: CountDownTimer? = null
-    private var timeInMilliseconds = 30000L
+    private var timeInMilliseconds = 20000L
     private var pauseOffSet = 0L
 
     private var lineYValues = ArrayList<Entry>()
@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var lineData: LineData? = null
 
     private var i: Float = 0.0.toFloat()
+    private var id: Float = 0.0.toFloat()
     private val maxEntries = 250
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,15 +98,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val arrayAdapter = ArrayAdapter(this, R.layout.dropdown_item, dropdownValues)
 
         pitchTextView = findViewById(R.id.pitch)
-        pitchRelativeTextView = findViewById(R.id.pitch_relative)
-        rollTextView = findViewById(R.id.roll)
-        yawTextView = findViewById(R.id.yaw)
+        azimuthTextView = findViewById(R.id.azimuth)
+        azimuthOffsetTextView = findViewById(R.id.azimuth_offset)
         magXTextView = findViewById(R.id.magnetic_x)
         magYTextView = findViewById(R.id.magnetic_y)
         magZTextView = findViewById(R.id.magnetic_z)
         timerTextView = findViewById(R.id.timer)
         lineChartView = findViewById(R.id.chart)
-        buttonView = findViewById(R.id.button)
+        resetReadingButtonView = findViewById(R.id.reset_reading_button)
+        resetDbButtonView = findViewById(R.id.reset_db_button)
         stopButtonView = findViewById(R.id.button_stop)
         startButtonView = findViewById(R.id.button_start)
         dropdownView = findViewById(R.id.dropdown)
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
         lineYDataSet = LineDataSet(lineYValues, "Magnetic Field Y")
-        lineZDataSet = LineDataSet(lineZValues, "Magnetic Field Z")
+        lineZDataSet = LineDataSet(lineZValues, "Azimuth")
 
         lineYDataSet?.setDrawCircles(false)
         lineZDataSet?.setDrawCircles(false)
@@ -141,25 +142,62 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-//        registerSensor()
 
         dropdownView.setOnDismissListener {
             val text = dropdownView.text
             val duration = Toast.LENGTH_SHORT
 
+            timeInMilliseconds = when (dropdownView.text.toString()) {
+                "continuous" -> 40000L
+                "continuous2" -> 1000000L
+                else -> 15000L
+            }
+
+            lineZDataSet?.color = when (dropdownView.text.toString()) {
+                "0 cm" -> getColor(R.color.red)
+                "2 cm" -> getColor(R.color.green)
+                "5 cm" -> getColor(R.color.blue)
+                "10 cm" -> getColor(R.color.cyan)
+                "15 cm" -> getColor(R.color.red)
+                "20 cm" -> getColor(R.color.magenta)
+                "25 cm" -> getColor(R.color.yellow)
+                "30 cm" -> getColor(R.color.black)
+                "continuous" -> getColor(R.color.maroon)
+                "continuous2" -> getColor(R.color.maroon)
+                else -> getColor(R.color.colorAccent)
+            }
+            i = 0.0.toFloat()
+            resetTimer()
+
             Toast.makeText(this, text, duration).show()
         }
 
-        buttonView.setOnClickListener {
+        resetDbButtonView.setOnClickListener {
+            lineYValues.clear()
+            lineZValues.clear()
+            dao.deleteAll()
+            i = 0.0.toFloat()
+            id = 0.0.toFloat()
+            resetTimer()
+
+            val text = "Clear DB"
+            val duration = Toast.LENGTH_SHORT
+
+            Toast.makeText(this, text, duration).show()
+
+        }
+
+        resetReadingButtonView.setOnClickListener {
             lineYValues.clear()
             lineZValues.clear()
             i = 0.0.toFloat()
-            dao.deleteAll()
 
             val text = "Reset Reading"
             val duration = Toast.LENGTH_SHORT
 
             Toast.makeText(this, text, duration).show()
+
+            dao.deleteByDistance(dropdownView.text.toString())
 
             resetTimer()
         }
@@ -222,10 +260,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val pitchRelative = abs((Math.toDegrees(orientationAnglesRemapped[1].toDouble()))).toFloat() + 22.6
             val pitch2Relative = abs((Math.toDegrees(orientationAngles[1].toDouble()))).toFloat() + 22.6
 
-            azimuth -= 180
+//            azimuth -= 180
             if (azimuth < -180) {
                 azimuth += 360
             }
+
+            val azimuthOffset = azimuth - 8
 
             if (azimuth2 < 0) {
                 azimuth2 += 360
@@ -240,18 +280,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 pitch = 180 - pitch
             }
 
-            setLineChartData(Entry(i, abs(magnetometerReadingFiltered[1])), Entry(i, abs(magnetometerReadingFiltered[2])))
+            setLineChartData(Entry(i, abs(magnetometerReadingFiltered[1])), Entry(i, abs(azimuth.toFloat())))
             i += 1
+            id += 1
 
             "Pitch: $pitch2".also { pitchTextView.text = it }
-            "Pitch Offset: $pitch2Relative ".also { pitchRelativeTextView.text = it }
-            "Roll: $roll".also { rollTextView.text = it }
-            "Yaw: $azimuth2".also { yawTextView.text = it }
+            "Azimuth: $azimuth".also { azimuthTextView.text = it }
+            "Azimuth Offset (-8): $azimuthOffset".also { azimuthOffsetTextView.text = it }
             "x: ${magnetometerReading[0]}".also { magXTextView.text = it }
             "y: ${magnetometerReading[1]}".also { magYTextView.text = it }
             "z: ${magnetometerReading[2]}".also { magZTextView.text = it }
 
-            val sensor = SensorEntity(id = i, timestamp= ((timeInMilliseconds - pauseOffSet)/ 1000), pitch = pitch2, pitchOffset = pitch2Relative, yaw = azimuth2, magnetoX = magnetometerReadingFiltered[0], magnetoY = magnetometerReadingFiltered[1], magnetoZ = magnetometerReadingFiltered[2])
+            val sensor = SensorEntity(id = id, distance = dropdownView.text.toString() ,timestamp= ((timeInMilliseconds - pauseOffSet)/ 1000), pitch = pitch2, pitchOffset = pitch2Relative, yaw = azimuth, magnetoX = magnetometerReadingFiltered[0], magnetoY = magnetometerReadingFiltered[1], magnetoZ = magnetometerReadingFiltered[2])
 
             if (i == 100.toFloat()) {
                 val text = "Start Reading..."
@@ -263,12 +303,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
 
             if (((timeInMilliseconds - pauseOffSet)/ 1000).toInt() != 0 && i > 100) {
-//                if(i % 25 == 0.0.toFloat()) {
-//                    val text = "Change Distance"
-//                    val duration = Toast.LENGTH_SHORT
-//
-//                    Toast.makeText(this, text, duration).show()
-//                }
                 dao.insertAll(sensor)
             }
 
@@ -299,10 +333,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun setLineChartData(entryY: Entry, entryZ: Entry) {
-        if (lineYValues.size > maxEntries) {
-            lineYValues.removeAt(0)
-            lineZValues.removeAt(0)
-        }
+//        if (lineYValues.size > maxEntries) {
+//            lineYValues.removeAt(0)
+//            lineZValues.removeAt(0)
+//        }
 
         lineYValues.add(entryY)
         lineZValues.add(entryZ)
@@ -358,26 +392,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    private fun exportDataToCsv() {
-        val dataset = dao.getAll()
-
-        try {
-            val writer = FileWriter(File(getExternalFilesDir(null), "sensor_reading.csv"))
-            writer.append("id, magneto_x, magneto_y, magneto_z")
-
-            for (data in dataset) {
-                writer.append("${data.id}, ${data.magnetoX}, ${data.magnetoY}, ${data.magnetoZ}")
-            }
-
-            writer.flush()
-            writer.close()
-
-        } catch (e: IOException) {
-            val text = e.toString()
-            val duration = Toast.LENGTH_SHORT
-
-            e.printStackTrace()
-            Toast.makeText(this, text, duration).show()
-        }
-    }
 }

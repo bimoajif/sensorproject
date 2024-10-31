@@ -14,6 +14,9 @@ interface SensorDao {
     @Query("SELECT * FROM sensor_reading WHERE id = :id")
     fun getById(id: String): SensorEntity
 
+    @Query("DELETE FROM sensor_reading WHERE distance = :distance")
+    fun deleteByDistance(distance: String)
+
     @Query("DELETE FROM sensor_reading")
     fun deleteAll()
 

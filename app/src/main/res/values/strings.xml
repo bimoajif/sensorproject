@@ -5,20 +5,24 @@
         <item>2 cm</item>
         <item>5 cm</item>
         <item>10 cm</item>
+        <item>15 cm</item>
         <item>20 cm</item>
         <item>25 cm</item>
         <item>30 cm</item>
         <item>continuous</item>
+        <item>continuous2</item>
     </string-array>
     <string name="pitch">Pitch:</string>
-    <string name="pitch_relative">Pitch Relative:</string>
+    <string name="pitch_relative">Pitch Offset:</string>
     <string name="roll">Roll:</string>
-    <string name="yaw">Yaw:</string>
+    <string name="yaw">Azimuth:</string>
+    <string name="yaw_offset">Azimuth Offset:</string>
     <string name="magnetic_x">Magnetic X:</string>
     <string name="magnetic_y">Magnetic Y:</string>
     <string name="magnetic_z">Magnetic Z:</string>
     <string name="timer">Timer Initializing…</string>
     <string name="reset_reading">Reset Reading</string>
+    <string name="reset_db">Clear Database</string>
     <string name="start_reading">Start Reading</string>
     <string name="stop_reading">Stop Reading</string>
     <string name="select_distance">Select Distance</string>

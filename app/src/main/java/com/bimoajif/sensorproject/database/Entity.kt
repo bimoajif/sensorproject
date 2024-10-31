@@ -8,6 +8,7 @@ import java.util.Date
 data class SensorEntity(
     @PrimaryKey val id: Float,
     @ColumnInfo(name = "timestamp") val timestamp: Long?,
+    @ColumnInfo(name = "distance") val distance: String?,
     @ColumnInfo(name = "pitch") val pitch: Long?,
     @ColumnInfo(name = "pitch_offset") val pitchOffset: Double?,
     @ColumnInfo(name = "yaw") val yaw: Long?,
