@@ -83,7 +83,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private var i: Float = 0.0.toFloat()
     private var id: Float = 0.0.toFloat()
-    private val maxEntries = 250
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
